@@ -54,13 +54,14 @@ async function waitForLogin(page, browser) {
 }
 
 async function getHeaderText(page) {
-    return await page.evaluate (() => {
-        let courseHeader = document.getElementsByClassName("Breadcrumbstyles__BreadcrumbCurrent-sc-aqreso-1 bgVGYq");
-        if(!courseHeader[0]){
+    return await page.  evaluate (() => {
+        let courseHeader = document.querySelector('span[aria-current="location"]');
+        console.log(courseHeader);
+        if(!courseHeader){
             console.log("Course header not found")
             return "";
         }
-        return courseHeader[0].innerText;
+        return courseHeader.innerText;
     })
 }
 
