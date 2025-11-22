@@ -1,0 +1,21 @@
+{
+  "name": "tophat-tracker",
+  "version": "1.0.0",
+  "description": "Notifies you of TopHat questions on desktop",
+  "main": "TopHatNotifier.js",
+  "type": "module",
+  "scripts": {
+    "start": "node TopHatNotifier.js"
+  },
+  "keywords": [
+    "tophat",
+    "notifier",
+    "desktop"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "node-notifier": "^10.0.1"
+  }
+}
