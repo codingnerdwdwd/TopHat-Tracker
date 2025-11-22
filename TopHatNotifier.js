@@ -130,3 +130,7 @@ async function tophatEngine() {
 tophatEngine().catch((error) => {
     console.error("Error in TopHat Engine: ", error);
 });
+
+process.on('exit', async () => {
+    await browser.close();
+})
