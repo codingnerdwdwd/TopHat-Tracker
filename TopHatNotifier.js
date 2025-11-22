@@ -2,7 +2,7 @@ import puppeteer from "puppeteer";
 import notifier from "node-notifier";
 
 const USER_DATA_DIR = "./tophat-login";
-const TOPHAT_URL = "<TOPHAT_URL>" // Your TopHat URL here
+let TOPHAT_URL = "<TOPHAT_URL>" // Your TopHat URL here
 const POLL_INTERVAL = 2000 // in milliseconds
 
 async function launchBrowser(headless = true) {
@@ -76,12 +76,12 @@ async function checkTophatQuestions(page) {
 
         if(!unansweredQuestions){
             console.log("Unanswered Questions element not found");
-            return 0;
+            return -1;
         }
         let count = parseInt(unansweredQuestions.innerText);
         if (isNaN(count)) {
             console.log("Question count not found");
-            return 0;
+            return -1;
         }
         return count;
         //
@@ -89,11 +89,27 @@ async function checkTophatQuestions(page) {
 }
 
 async function tophatEngine() {
+    if(!TOPHAT_URL){
+        throw new Error("TOPHAT_URL is not defined");
+    }
+    else if(TOPHAT_URL.includes("app.tophat.com/e/")){
+        console.log("Starting TopHat Notifier for URL: " + TOPHAT_URL);
+    } else {
+        throw new Error("Invalid TopHat URL");
+    }
+    if(TOPHAT_URL.endsWith("assigned-for-grades") == false){
+        console.log("Incorrect TopHat page. Attemping to fix URL...")
+        TOPHAT_URL =  TOPHAT_URL.replace(/[^/]+$/,'assigned-for-grades');
+        console.log("New TopHat URL: " + TOPHAT_URL);
+    }
+
+    
     let {browser, page} = await launchBrowser();
     await connectToPage(page);
     ({browser, page} = await waitForLogin(page,browser));
     let previousQCount = await checkTophatQuestions(page);
     console.log("previousQcount: " + previousQCount);
+    
     setInterval( async () =>
     {
         let courseHeader = await getHeaderText(page);
