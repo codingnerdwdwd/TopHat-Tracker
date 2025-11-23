@@ -4,7 +4,7 @@ This repository is currently **public**, which means anyone can view your code. 
 
 ## Method 1: Using GitHub Web Interface (Recommended)
 
-1. **Go to your repository on GitHub**: Navigate to https://github.com/codingnerdwdwd/TopHat-Tracker
+1. **Go to your repository on GitHub**: Navigate to your repository page (e.g., `https://github.com/YOUR-USERNAME/YOUR-REPO-NAME`)
 
 2. **Access Settings**:
    - Click on the **Settings** tab (located in the top menu bar of your repository)
@@ -17,7 +17,7 @@ This repository is currently **public**, which means anyone can view your code. 
 
 4. **Confirm the Change**:
    - GitHub will ask you to type the repository name to confirm
-   - Type `codingnerdwdwd/TopHat-Tracker` to confirm
+   - Type your repository name in the format `USERNAME/REPO-NAME` to confirm
    - Click the confirmation button
 
 5. **Done!** Your repository is now private.
@@ -27,8 +27,10 @@ This repository is currently **public**, which means anyone can view your code. 
 If you have the GitHub CLI installed, you can use:
 
 ```bash
-gh repo edit codingnerdwdwd/TopHat-Tracker --visibility private
+gh repo edit YOUR-USERNAME/YOUR-REPO-NAME --visibility private
 ```
+
+Replace `YOUR-USERNAME/YOUR-REPO-NAME` with your actual repository path.
 
 ## Important Notes
 
