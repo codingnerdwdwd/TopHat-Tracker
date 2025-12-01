@@ -2,7 +2,7 @@ import puppeteer from "puppeteer";
 import notifier from "node-notifier";
 
 
-let url = "https://app.tophat.com/e/961482/content/assigned-for-grades"
+let url = ""
 
                 
 async function launchBrowser(headless) {
@@ -115,7 +115,7 @@ async function tophatEngine(url,interval,headless) {
 
     // CHANGE THESE VALUES FOR UR TOPHAT URL AND WHATEVER INTERVAL U WANT. INTERVAL IS IN MS. 
     console.log("Starting TopHat Engine...");
-     url = "https://app.tophat.com/e/961482/content/assigned-for-grades"
+     url = ""
     let interval = 30000
     let loggedIn = true; 
     tophatEngine(url, interval, loggedIn).catch((error) => {
