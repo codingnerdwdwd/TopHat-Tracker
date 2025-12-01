@@ -1,39 +1,38 @@
 import puppeteer from "puppeteer";
 import notifier from "node-notifier";
 
-const USER_DATA_DIR = "./tophat-login";
-let TOPHAT_URL = "<TOPHAT_URL>" // Your TopHat URL here
-const POLL_INTERVAL = 2000 // in milliseconds
 
-async function launchBrowser(headless = true) {
+let url = "https://app.tophat.com/e/961482/content/assigned-for-grades"
 
+                
+async function launchBrowser(headless) {
     const browser = await puppeteer.launch({
         headless: headless,
-        userDataDir: USER_DATA_DIR
+        userDataDir: "./tophat-login"
      });
-
-    console.log(`Browser Launched as ${headless ? "headless" : "visible"}`)
-    const page = (await browser.pages())[0]
-    return { browser, page }
+    console.log("Browser Launched");
+    const page = await browser.pages().then(pages => pages[0]);
+    return { browser, page };
 }
 
-async function connectToPage(page) {
-    await page.goto(TOPHAT_URL, {waitUntil: 'networkidle2'});
+
+async function connectToPage(page,url) {
+    await page.goto(url, {waitUntil: 'networkidle2'});
     return page;
 }
 
-async function waitForLogin(page, browser) {
-     if(page.url().includes("login")){
+async function checkConnected(page,browser,url) {
+    if(page.url().includes("login")){
         console.log("not logged in");
 
         let pages = await browser.pages();
         for(page in pages){
             await pages[page].close();
         }
-        await browser.close(); //Cant change headless mode after launch. Closes browser to relaunch.
+        await browser.close();
 
         ({browser, page} = await launchBrowser(false));
-        await connectToPage(page);
+        await connectToPage(page,url);
         while(page.url().includes("login")){
             console.log("waiting for login...");
             await new Promise(resolve => setTimeout(resolve, 3000));
@@ -41,29 +40,18 @@ async function waitForLogin(page, browser) {
                 throw new Error("Browser disconnected");
             }
         }
-        await browser.close(); //After login close browser to relaunch as headless.
+        await browser.close();
         ({browser, page} = await launchBrowser(true));
-        await connectToPage(page);
+        await connectToPage(page,url);
         console.log("logged in");
-        return await waitForLogin(page,browser);
+        return await checkConnected(page,browser,url);
     }
     else{
         console.log("logged in");
         return {browser, page};
     }
 }
-
-async function getHeaderText(page) {
-    return await page.  evaluate (() => {
-        let courseHeader = document.querySelector('span[aria-current="location"]');
-        console.log(courseHeader);
-        if(!courseHeader){
-            console.log("Course header not found")
-            return "";
-        }
-        return courseHeader.innerText;
-    })
-}
+        
 
 async function checkTophatQuestions(page) { 
     if(!page){
@@ -77,42 +65,38 @@ async function checkTophatQuestions(page) {
 
         if(!unansweredQuestions){
             console.log("Unanswered Questions element not found");
-            return -1;
+            return 0;
         }
         let count = parseInt(unansweredQuestions.innerText);
         if (isNaN(count)) {
             console.log("Question count not found");
-            return -1;
+            return 0;
         }
         return count;
         //
     })
 }
 
-async function tophatEngine() {
-    if(!TOPHAT_URL){
-        throw new Error("TOPHAT_URL is not defined");
-    }
-    else if(TOPHAT_URL.includes("app.tophat.com/e/")){
-        console.log("Starting TopHat Notifier for URL: " + TOPHAT_URL);
-    } else {
-        throw new Error("Invalid TopHat URL");
-    }
-    if(TOPHAT_URL.endsWith("assigned-for-grades") == false){
-        console.log("Incorrect TopHat page. Attemping to fix URL...")
-        TOPHAT_URL =  TOPHAT_URL.replace(/[^/]+$/,'assigned-for-grades');
-        console.log("New TopHat URL: " + TOPHAT_URL);
-    }
+async function getHeaderText(page) {
+    return await page.evaluate (() => {
+        let courseHeader = document.getElementsByClassName("Breadcrumbstyles__BreadcrumbCurrent-sc-aqreso-1 bgVGYq");
+        if(!courseHeader[0]){
+            console.log("Course header not found")
+            return "";
+        }
+        return courseHeader[0].innerText;
+    })
+}
 
-    
-    let {browser, page} = await launchBrowser();
-    await connectToPage(page);
-    ({browser, page} = await waitForLogin(page,browser));
+async function tophatEngine(url,interval,headless) {
+    let {browser, page} = await launchBrowser(headless);
+    await connectToPage(page, url);
+    ({browser, page} = await checkConnected(page,browser,url));
     let previousQCount = await checkTophatQuestions(page);
     console.log("previousQcount: " + previousQCount);
-    
     setInterval( async () =>
     {
+        await page.reload({waitUntil: 'networkidle2'});
         let courseHeader = await getHeaderText(page);
         console.log(courseHeader);
         let currentQCount = await checkTophatQuestions(page);
@@ -124,14 +108,26 @@ async function tophatEngine() {
             })
             previousQCount = currentQCount;
     }
-     }, POLL_INTERVAL);
+     }, interval)
     
 }
 
-tophatEngine().catch((error) => {
-    console.error("Error in TopHat Engine: ", error);
-});
 
-process.on('exit', async () => {
-    await browser.close();
-})
+    // CHANGE THESE VALUES FOR UR TOPHAT URL AND WHATEVER INTERVAL U WANT. INTERVAL IS IN MS. 
+    console.log("Starting TopHat Engine...");
+     url = "https://app.tophat.com/e/961482/content/assigned-for-grades"
+    let interval = 30000
+    let loggedIn = true; 
+    tophatEngine(url, interval, loggedIn).catch((error) => {
+        console.error("Error in TopHat Engine: ", error);
+    });
+    /*
+   process.on('exit', async() => {
+    await browser.close()
+   }
+)
+*/
+// DEPENDS ON node-notifier PACKAGE AND PUPPETEER PACKAGE
+// TO INSTALL PACKAGES, RUN THE FOLLOWING COMMANDS IN YOUR TERMINAL:
+// npm install node-notifier
+// npm install puppeteer
