@@ -1,0 +1,20 @@
+# Browser user data (contains login sessions)
+tophat-login/
+
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
