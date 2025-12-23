@@ -1,0 +1,22 @@
+# Node.js dependencies
+node_modules/
+
+# Puppeteer user data
+tophat-login/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
